@@ -10,3 +10,9 @@ enum Chessman{
 	BLACK_CHESS,
 	WHITE_CHESS;
 }
+
+enum Status{
+	WIN,//胜
+	GAMING,//胜负未分
+	DRAW;//平局
+}

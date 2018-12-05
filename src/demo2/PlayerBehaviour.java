@@ -9,8 +9,4 @@ package demo2;
 public interface PlayerBehaviour {
 	//ÏÂÆå
 	public void putChess(Point p);
-	//»ÚÆå
-	public void backChess();
-	//ÈÏÊä
-	public void giveUp();
 }

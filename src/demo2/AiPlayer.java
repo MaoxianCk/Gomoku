@@ -18,14 +18,6 @@ public class AiPlayer extends Player {
 		
 	}
 
-	public void backChess() {
-		//AI不需要悔棋
-	}
-
-	public void giveUp() {
-		//AI不会认输
-	}
-
 	public void registerObserver(BoardObserver o) {
 		// TODO Auto-generated method stub
 		

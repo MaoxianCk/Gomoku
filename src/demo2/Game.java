@@ -9,16 +9,16 @@ import java.awt.event.MouseListener;
  * @author MaoxianCk
  */
 public class Game implements MouseListener {
-	Player player[];
-	HumanPlayer humanPlayer;
-	AiPlayer aiPlayer;
-	ChessBoard chessBoard;
+	private Player player[];
+	private HumanPlayer humanPlayer;
+	private AiPlayer aiPlayer;
+	private ChessBoard chessBoard;
 
 	// 游戏是否结束,0未结束，1胜负以分，-1平局
-	int isEnd = 0;
-	int winner = 0;
+	private Status isEnd = Status.GAMING;
+	private int winner = 0;
 
-	int round = 0;
+	private int round = 0;
 
 	Game() {
 		humanPlayer = new HumanPlayer();
@@ -26,59 +26,66 @@ public class Game implements MouseListener {
 		chessBoard = new ChessBoard();
 
 		// TEST
-		player=new Player[2];
+		player = new Player[2];
 		player[0] = humanPlayer;
 		player[1] = aiPlayer;
 	}
 
 	public void run() {
-		int nowPlayer=round%2;
-		Point p=null;
+		int nowPlayer = round % 2;
+		Point p = null;
 		player[nowPlayer].putChess(p);
 		if (chessBoard.isLegal(p)) {
 			chessBoard.setChess(p, player[nowPlayer].getChessman());
 			isEnd = chessBoard.isEnd();
 		}
-		if (isEnd != 0) {
+		if (isEnd != Status.GAMING) {
 			winner = 1;
 			System.out.println("winner is " + winner);
 		}
 	}
 
+	public int getWinner(){
+		return winner;
+	}
+	public int getRound() {
+		return round;
+	}
+	public Status getIsEnd() {
+		return isEnd;
+	}
 	public static void main(String[] args) {
 		GameFrame gameFrame = new GameFrame();
 		Game game = new Game();
-
-		game.run();
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

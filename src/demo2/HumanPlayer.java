@@ -21,17 +21,6 @@ public class HumanPlayer extends Player implements MouseListener {
 		boardObserver.setChess(p, this.getChessman());
 	}
 	
-	public void backChess() {
-		
-	}
-
-	public void giveUp() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	
-	
 	
 	@Override
 	public void mouseClicked(MouseEvent e) {

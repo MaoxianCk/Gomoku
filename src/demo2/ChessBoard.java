@@ -5,12 +5,14 @@ import java.util.Stack;
 import demo.Game;
 
 /**
- * 棋盘类，储存棋盘的棋子 "游戏平台" 不对操作检查合法性 TODO 当自己改变（下棋，悔棋）给界面发送消息，刷新界面
- * 
+ * 棋盘类，储存棋盘的棋子 "游戏平台" 不对操作检查合法性 
+ * TODO 当自己改变（下棋，悔棋）给界面发送消息，刷新界面
  * @author MaoxianCk
  */
 public class ChessBoard implements BoardObserver {
 	public static final int BOARD_SIZE = 15;
+	
+	private PanelObserver panelObserver;
 	private int winx[] = new int[2];
 	private int winy[] = new int[2];
 	// 棋盘
@@ -29,6 +31,8 @@ public class ChessBoard implements BoardObserver {
 		System.out.println("在(" + p.x + "," + p.y + ")处，放了一个棋子");
 		board[p.y][p.x] = c;
 		putStack.push(p);
+		//发送棋盘信息
+		panelObserver.update(board.clone(), winx, winy, p.x, p.y);
 	}
 
 	// 撤回上一步放的棋子
@@ -40,18 +44,20 @@ public class ChessBoard implements BoardObserver {
 			board[p.y][p.x] = Chessman.BLANK_SPACE;
 			System.out.println("在(" + p.x + "," + p.y + ")处，撤回了一个棋子");
 		}
+		//发送棋盘信息
+		panelObserver.update(board.clone(), winx, winy, -1, -1);
 	}
 	/**
 	 * 判断是否胜负
 	 * 返回值为int，1表示胜利，0表示胜负未分，-1表示平局（棋盘已满且胜负未分）
 	 */
-	public int isEnd() {
+	public Status isEnd() {
 		/*
 		 * 检测是否分出胜负 以当前落子点p=栈顶 为中心向4个方向(横，竖，左斜，右斜)比对
 		 */
 		Point p = putStack.peek();
 
-		int win = 0;// 判断前设置初始状态
+		Status win = Status.GAMING;// 判断前设置初始状态
 		int maxCnt = 0;// 记录最大连子数
 		int cnt = 1;// 记录当前连子数，自己本身算1
 		int tempX = p.x;// 循环判断的当前x变量
@@ -102,15 +108,15 @@ public class ChessBoard implements BoardObserver {
 			// 若当前方向上连珠数达成，记录、修改数据并结束判断
 
 			if (cnt >= 5) {
-				win = 1;
+				win = Status.WIN;
 				break;
 			} else {
-				win = 0;
+				win = Status.GAMING;
 			}
 		}
 
-		if (isDraw() == true && win == 0) {
-			win = -1;
+		if (isDraw() == true && win == Status.GAMING) {
+			win = Status.DRAW;
 		}
 		return win;
 	}
@@ -148,11 +154,15 @@ public class ChessBoard implements BoardObserver {
 	public void cleanBoard() {
 		System.out.println("清空棋盘...");
 		for (int i = 0; i < board.length; i++) {
-			for (int j = 0; j < board[j].length; j++) {
+			for (int j = 0; j < board[i].length; j++) {
 				board[i][j] = Chessman.BLANK_SPACE;
 			}
 		}
 		System.out.println("清空下棋记录...");
 		putStack.clear();
+	}
+	
+	public Chessman[][] getBoard(){
+		return board.clone();
 	}
 }
