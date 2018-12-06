@@ -14,13 +14,17 @@ public class AiPlayer extends Player {
 		super("AI",chessman);
 	}
 	
-	public void putChess(Point p) {
-		
+	public Point putChess(Point p) {
+		p=caculate();
+		return p;
 	}
-
-	public void registerObserver(BoardObserver o) {
-		// TODO Auto-generated method stub
-		
+	
+	/**
+	 * º∆À„¬‰µ„
+	 * @return
+	 */
+	private Point caculate() {
+		Point p=new Point();
+		return p;
 	}
-
 }

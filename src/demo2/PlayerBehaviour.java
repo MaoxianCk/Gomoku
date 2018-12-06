@@ -8,5 +8,5 @@ package demo2;
  */
 public interface PlayerBehaviour {
 	//ÏÂÆå
-	public void putChess(Point p);
+	public Point putChess(Point p);
 }

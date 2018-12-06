@@ -1,6 +1,6 @@
 package demo2;
 
-public abstract class Player implements PlayerBehaviour,BoardObserverable{
+public abstract class Player implements PlayerBehaviour {
 	private Chessman chessman;
 	private String name;
 
