@@ -6,7 +6,6 @@ package demo2;
  * @author MaoxianCk
  */
 public class HumanPlayer extends Player {
-	BoardObserver boardObserver;
 	
 	public HumanPlayer() {
 		super("Íæ¼Ò",Chessman.BLANK_SPACE);

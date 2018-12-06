@@ -9,7 +9,7 @@ import demo.Game;
  * TODO 当自己改变（下棋，悔棋）给界面发送消息，刷新界面
  * @author MaoxianCk
  */
-public class ChessBoard implements BoardObserver {
+public class ChessBoard {
 	public static final int BOARD_SIZE = 15;
 	
 	private PanelObserver panelObserver;

@@ -16,3 +16,8 @@ enum Status{
 	GAMING,//胜负未分
 	DRAW;//平局
 }
+
+enum GameMode{
+	PVC,
+	PVP;
+}
