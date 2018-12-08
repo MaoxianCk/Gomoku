@@ -19,9 +19,12 @@ public class GameMouseListener implements MouseListener,MouseObserverable {
 		System.out.println("--------------------------------------");
 		x = e.getX();// 获取鼠标点击位置坐标
 		y = e.getY();
+		System.out.println("鼠标点击位置()"+x+","+y+")");
 		// 检查越界及点击误差判断
-		if (x >= 15 && x < BOARD_SIZE * spacing + 15 && y >= 15 && y < BOARD_SIZE * spacing + spacing / 2) {
-			x = (x + BOARD_SIZE) / spacing - 1; // 是为了取得交叉点的坐标，将鼠标点击坐标转化为棋盘具体坐标(x,y)：0-14
+		if (x >= 15 && x < BOARD_SIZE * spacing + 15 && y >= 15 && y < BOARD_SIZE * spacing + 15) {
+			
+			// 是为了取得交叉点的坐标，将鼠标点击坐标转化为棋盘具体坐标(x,y)：0-14
+			x = (x + BOARD_SIZE) / spacing - 1; 
 			y = (y + BOARD_SIZE) / spacing - 1;
 			if (x >= 0 && x < BOARD_SIZE && y >= 0 && y < BOARD_SIZE) {
 				p.x = x;

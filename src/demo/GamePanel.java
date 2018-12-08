@@ -1,11 +1,11 @@
 package demo;
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
 /**
- * 画板，对输入信息的处理及对应窗口的具体绘制
- * 实现MouseListener,MouseMotionListener接口
+ * 画板，对输入信息的处理及对应窗口的具体绘制 实现MouseListener,MouseMotionListener接口
  * 对鼠标点击事件进行处理并交由Game对象进行处理
  */
 public class GamePanel extends JPanel implements MouseListener, MouseMotionListener {
@@ -28,7 +28,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 	Game game;
 
 	GamePanel() {
-		//System.out.println(Gomoku.class.getResource("./Resource/Gomoku.jpg"));
+		// System.out.println(Gomoku.class.getResource("./Resource/Gomoku.jpg"));
 		backgroundImgIcon = new ImageIcon(Gomoku.class.getResource("./Resource/Gomoku.jpg"));// 设置背景图片路径
 		backgroundImg = backgroundImgIcon.getImage();
 		game = new Game();
@@ -40,9 +40,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 
 	public void paint(Graphics g) {
 		/**
-		 * 实现JPanel中paint函数
-		 * 对窗口图形进行具体绘制
-		 * 由repaint()及窗口改变后自动调用
+		 * 实现JPanel中paint函数 对窗口图形进行具体绘制 由repaint()及窗口改变后自动调用
 		 */
 
 		// super.paint(g);
@@ -81,7 +79,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 		if (game.getWin() == 1) {
 			drawWinLine(g, game.wx, game.wy);
 		}
-        // 打印文字提示信息
+		// 打印文字提示信息
 		g.setColor(Color.black);
 		if (game.getNowPlayer() == 1) {
 			g.drawString("黑子下棋", spacing * 3, spacing + spacing * Game.size + 15);
@@ -102,7 +100,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 	}
 
 	public void drawWinLine(Graphics g, int wx[], int wy[]) {
-        // 绘制结束后连珠线
+		// 绘制结束后连珠线
 		int a = ovalSize - 10, b = ovalSize - 10;
 		if (wx[0] == wx[1]) {
 			a = 0;
@@ -142,19 +140,20 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 	}
 
 	public void mousePressed(MouseEvent e) {
-		//鼠标点击事件处理
+		// 鼠标点击事件处理
 		System.out.println("--------------------------------------");
 		x = e.getX();// 获取鼠标点击位置坐标
 		y = e.getY();
-		//检查越界及点击误差判断
+		System.out.println("鼠标点击位置()"+x+","+y+")");
+		// 检查越界及点击误差判断
 		if (x >= 15 && x < mapSize * spacing + 15 && y >= 15 && y < mapSize * spacing + spacing / 2) {
 			x = (x + mapSize) / spacing - 1; // 是为了取得交叉点的坐标，将鼠标点击坐标转化为棋盘具体坐标(x,y)：0-14
 			y = (y + mapSize) / spacing - 1;
 			if (x >= 0 && x < mapSize && y >= 0 && y < mapSize) {
-				game.pvc(x, y, 2);//调用pvc游戏模式
+				game.pvc(x, y, 2);// 调用pvc游戏模式
 				// game.pvp(x, y);//调用pvp游戏模式
 
-				//胜负判断
+				// 胜负判断
 				if (game.getWin() == 1) {
 					showWin();
 					game.initialize();
@@ -188,7 +187,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		//鼠标移动事件，一般仅调试时使用
+		// 鼠标移动事件，一般仅调试时使用
 		int ex, ey;
 		ex = e.getX();
 		ey = e.getY();

@@ -3,6 +3,8 @@ package demo2;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import javax.swing.JOptionPane;
+
 import org.omg.CosNaming.NamingContextExtPackage.AddressHelper;
 
 /**
@@ -13,65 +15,75 @@ import org.omg.CosNaming.NamingContextExtPackage.AddressHelper;
 public class Game implements MouseObserver {
 
 	private Player player[];
-	private HumanPlayer humanPlayer;
-	private AiPlayer aiPlayer;
 	private ChessBoard chessBoard;
 	private int nowPlayerNum;
-	private int humanPlayerNum;//人类玩家在player[]里的编号（0,1）  2表示PVP
+	private int humanPlayerNum;// 人类玩家在player[]里的编号（0,1） 2表示PVP
 	private GameMode gameMode;
 
 	// 游戏是否结束,0未结束，1胜负以分，-1平局
 	private Status isEnd = Status.GAMING;
-	private int winner = 0;
+	private int winner ;
 
-	private int round = 0;
+	private int round ;
 
 	Game() {
-		humanPlayer = new HumanPlayer();
-		aiPlayer = new AiPlayer();
 		chessBoard = new ChessBoard();
 
 		// TEST
 		player = new Player[2];
-		//if human first
-		gameMode=GameMode.PVC;
-		player[0] = humanPlayer;
-		player[1] = aiPlayer;
-		//if ai first
-		//swap(player[0],player[1]);
-	}
+		// if human first
+		gameMode = GameMode.PVP;
+		player[0] = new HumanPlayer();
+		player[1] = new HumanPlayer();
+		
 
+		// if AI first
+		// swap(player[0],player[1]);
+
+		player[0].setChessman(Chessman.BLACK_CHESS);
+		player[1].setChessman(Chessman.WHITE_CHESS);
+	}
+	public void start() {
+		/**
+		 * 游戏开始前处理
+		 */
+		isEnd=Status.GAMING;
+		round=0;
+		chessBoard.cleanBoard();
+	}
 	public void PVC(Point p) {
 		for (int i = 0; i < 2; i++) {
 			nowPlayerNum = round % 2;
-			
-			p=player[i].putChess(p);
-			
+
+			p = player[i].putChess(p);
+			System.out.println("Player[" + i + "]" + player[i].getChessman());
 			if (chessBoard.isLegal(p)) {
-				chessBoard.setChess(p, player[nowPlayerNum].getChessman());
+				chessBoard.setChess(p, player[i].getChessman());
 				isEnd = chessBoard.isEnd();
+			round++;
 			}
 			if (isEnd != Status.GAMING) {
 				winner = nowPlayerNum;
 				System.out.println("winner is " + winner);
+				break;
 			}
-			round++;
 		}
 	}
+
 	public void PVP(Point p) {
 		nowPlayerNum = round % 2;
-		
-		p=player[nowPlayerNum].putChess(p);
-		
+
+		p = player[nowPlayerNum].putChess(p);
+
 		if (chessBoard.isLegal(p)) {
 			chessBoard.setChess(p, player[nowPlayerNum].getChessman());
 			isEnd = chessBoard.isEnd();
+		round++;
 		}
 		if (isEnd != Status.GAMING) {
 			winner = nowPlayerNum;
 			System.out.println("winner is " + winner);
 		}
-		round++;
 	}
 
 	public int getWinner() {
@@ -90,8 +102,9 @@ public class Game implements MouseObserver {
 		GameFrame gameFrame = new GameFrame();
 		Game game = new Game();
 		gameFrame.setGameMouseListener(game);
+		game.setChessPanel(gameFrame.getChessPanel());
+		game.start();
 	}
-
 
 	public int getHumanPlayerNum() {
 		return humanPlayerNum;
@@ -101,14 +114,21 @@ public class Game implements MouseObserver {
 		this.humanPlayerNum = humanPlayerNum;
 	}
 
+	public void setChessPanel(PanelObserver o) {
+		chessBoard.registerObserver(o);
+	}
+
 	@Override
 	public void mouseAction(Point p) {
-		if(gameMode==GameMode.PVC) {
+		if (gameMode == GameMode.PVC) {
 			PVC(p);
-		}
-		else if(gameMode==GameMode.PVP) {
+		} else if (gameMode == GameMode.PVP) {
 			PVP(p);
 		}
-		
+		if(isEnd==Status.WIN) {
+			JOptionPane.showMessageDialog(null, "胜利者是"+player[winner].getName());
+			chessBoard.cleanBoard();
+		}
+
 	}
 }

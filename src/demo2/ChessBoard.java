@@ -1,17 +1,18 @@
 package demo2;
 
+import java.io.PushbackInputStream;
 import java.util.Stack;
 
 import demo.Game;
 
 /**
- * 棋盘类，储存棋盘的棋子 "游戏平台" 不对操作检查合法性 
- * TODO 当自己改变（下棋，悔棋）给界面发送消息，刷新界面
+ * 棋盘类，储存棋盘的棋子 "游戏平台" 不对操作检查合法性 TODO 当自己改变（下棋，悔棋）给界面发送消息，刷新界面
+ * 
  * @author MaoxianCk
  */
-public class ChessBoard {
+public class ChessBoard implements PanelObserverable {
 	public static final int BOARD_SIZE = 15;
-	
+
 	private PanelObserver panelObserver;
 	private int winx[] = new int[2];
 	private int winy[] = new int[2];
@@ -23,16 +24,16 @@ public class ChessBoard {
 	public ChessBoard() {
 		putStack = new Stack<Point>();
 		board = new Chessman[BOARD_SIZE][BOARD_SIZE];
-		cleanBoard();
 	}
 
 	// 在p处放一个c棋子
 	public void setChess(Point p, Chessman c) {
 		System.out.println("在(" + p.x + "," + p.y + ")处，放了一个棋子");
 		board[p.y][p.x] = c;
+
 		putStack.push(p);
-		//发送棋盘信息
-		panelObserver.update(board.clone(), winx, winy, p.x, p.y);
+		// 发送棋盘信息
+		panelObserver.update(board.clone(), winx, winy, p.x, p.y, isEnd());
 	}
 
 	// 撤回上一步放的棋子
@@ -44,17 +45,21 @@ public class ChessBoard {
 			board[p.y][p.x] = Chessman.BLANK_SPACE;
 			System.out.println("在(" + p.x + "," + p.y + ")处，撤回了一个棋子");
 		}
-		//发送棋盘信息
-		panelObserver.update(board.clone(), winx, winy, -1, -1);
+		// 发送棋盘信息
+		panelObserver.update(board.clone(), winx, winy, -1, -1, isEnd());
 	}
+
 	/**
-	 * 判断是否胜负
-	 * 返回值为int，1表示胜利，0表示胜负未分，-1表示平局（棋盘已满且胜负未分）
+	 * 判断是否胜负 返回值为int，1表示胜利，0表示胜负未分，-1表示平局（棋盘已满且胜负未分）
 	 */
 	public Status isEnd() {
 		/*
 		 * 检测是否分出胜负 以当前落子点p=栈顶 为中心向4个方向(横，竖，左斜，右斜)比对
+		 * 如果是空栈，返回Gaming，游戏刚开始
 		 */
+		if (putStack.empty()) {
+			return Status.GAMING;
+		}
 		Point p = putStack.peek();
 
 		Status win = Status.GAMING;// 判断前设置初始状态
@@ -160,9 +165,17 @@ public class ChessBoard {
 		}
 		System.out.println("清空下棋记录...");
 		putStack.clear();
+		// 发送棋盘信息
+		panelObserver.update(board.clone(), winx, winy, -1, -1, isEnd());
 	}
-	
-	public Chessman[][] getBoard(){
+
+	public Chessman[][] getBoard() {
 		return board.clone();
+	}
+
+	@Override
+	public void registerObserver(PanelObserver o) {
+		panelObserver = o;
+
 	}
 }
