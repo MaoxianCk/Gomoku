@@ -13,25 +13,7 @@ public class GameMouseListener implements MouseListener,MouseObserverable {
 	
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		int x, y;
-		Point p = new Point();
-		// 鼠标点击事件处理
-		System.out.println("--------------------------------------");
-		x = e.getX();// 获取鼠标点击位置坐标
-		y = e.getY();
-		System.out.println("鼠标点击位置()"+x+","+y+")");
-		// 检查越界及点击误差判断
-		if (x >= 15 && x < BOARD_SIZE * spacing + 15 && y >= 15 && y < BOARD_SIZE * spacing + 15) {
-			
-			// 是为了取得交叉点的坐标，将鼠标点击坐标转化为棋盘具体坐标(x,y)：0-14
-			x = (x + BOARD_SIZE) / spacing - 1; 
-			y = (y + BOARD_SIZE) / spacing - 1;
-			if (x >= 0 && x < BOARD_SIZE && y >= 0 && y < BOARD_SIZE) {
-				p.x = x;
-				p.y = y;
-				mouseObserver.mouseAction(p);
-			}
-		}
+		
 	}
 
 	@Override
@@ -48,8 +30,25 @@ public class GameMouseListener implements MouseListener,MouseObserverable {
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-
+		int x, y;
+		Point p = new Point();
+		// 鼠标点击事件处理
+		System.out.println("--------------------------------------");
+		x = e.getX();// 获取鼠标点击位置坐标
+		y = e.getY();
+		System.out.println("鼠标点击位置("+x+","+y+")");
+		// 检查越界及点击误差判断
+		if (x >= 15 && x < BOARD_SIZE * spacing + 15 && y >= 15 && y < BOARD_SIZE * spacing + 15) {
+			
+			// 是为了取得交叉点的坐标，将鼠标点击坐标转化为棋盘具体坐标(x,y)：0-14
+			x = (x + BOARD_SIZE) / spacing - 1; 
+			y = (y + BOARD_SIZE) / spacing - 1;
+			if (x >= 0 && x < BOARD_SIZE && y >= 0 && y < BOARD_SIZE) {
+				p.x = x;
+				p.y = y;
+				mouseObserver.mouseAction(p);
+			}
+		}
 	}
 
 	@Override

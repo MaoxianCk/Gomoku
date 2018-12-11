@@ -1,6 +1,8 @@
 package demo2;
 
 import java.io.PushbackInputStream;
+import java.util.ArrayList;
+import java.util.Observable;
 import java.util.Stack;
 
 import demo.Game;
@@ -10,10 +12,14 @@ import demo.Game;
  * 
  * @author MaoxianCk
  */
-public class ChessBoard implements PanelObserverable {
+public class ChessBoard implements BoardObserverable {
 	public static final int BOARD_SIZE = 15;
+	
+	
+	
+	private ArrayList<BoardObserver> observersList;
 
-	private PanelObserver panelObserver;
+	private BoardObserver panelObserver;
 	private int winx[] = new int[2];
 	private int winy[] = new int[2];
 	// 棋盘
@@ -22,6 +28,7 @@ public class ChessBoard implements PanelObserverable {
 	private Stack<Point> putStack;
 
 	public ChessBoard() {
+		observersList=new ArrayList<BoardObserver>();
 		putStack = new Stack<Point>();
 		board = new Chessman[BOARD_SIZE][BOARD_SIZE];
 	}
@@ -33,7 +40,7 @@ public class ChessBoard implements PanelObserverable {
 
 		putStack.push(p);
 		// 发送棋盘信息
-		panelObserver.update(board.clone(), winx, winy, p.x, p.y, isEnd());
+		sendMessages();
 	}
 
 	// 撤回上一步放的棋子
@@ -46,7 +53,7 @@ public class ChessBoard implements PanelObserverable {
 			System.out.println("在(" + p.x + "," + p.y + ")处，撤回了一个棋子");
 		}
 		// 发送棋盘信息
-		panelObserver.update(board.clone(), winx, winy, -1, -1, isEnd());
+		sendMessages();
 	}
 
 	/**
@@ -166,16 +173,21 @@ public class ChessBoard implements PanelObserverable {
 		System.out.println("清空下棋记录...");
 		putStack.clear();
 		// 发送棋盘信息
-		panelObserver.update(board.clone(), winx, winy, -1, -1, isEnd());
+		sendMessages();
 	}
 
 	public Chessman[][] getBoard() {
 		return board.clone();
 	}
-
+//list sent messages
 	@Override
-	public void registerObserver(PanelObserver o) {
-		panelObserver = o;
-
+	public void registerObserver(BoardObserver o) {
+		observersList.add(o);
+	}
+	
+	private void sendMessages() {
+		for(BoardObserver list:observersList) {
+			list.update(board.clone(), winx, winy, -1, -1, isEnd());
+		}
 	}
 }

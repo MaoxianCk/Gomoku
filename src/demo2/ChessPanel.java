@@ -14,7 +14,7 @@ import javax.swing.JPanel;
  * 
  * @author MaoxianCk
  */
-public class ChessPanel extends JPanel implements PanelObserver {
+public class ChessPanel extends JPanel implements BoardObserver {
 	private Status isEnd;
 	private Chessman board[][];
 	private int wx[], wy[];
@@ -103,7 +103,7 @@ public class ChessPanel extends JPanel implements PanelObserver {
 					// System.out.println("drawChess");
 					// 黑色棋子
 					if (board[y][x] == Chessman.BLACK_CHESS) {
-						System.out.println("在(" + x + "," + y + ")绘制黑棋");
+						//System.out.println("在(" + x + "," + y + ")绘制黑棋");
 						g.setColor(Color.black);
 						g.fillOval(spacing * x + spacing - ovalSize / 2, spacing * y + spacing - ovalSize / 2, ovalSize,
 								ovalSize);
@@ -111,7 +111,7 @@ public class ChessPanel extends JPanel implements PanelObserver {
 					// 白色棋子
 					if (board[y][x] == Chessman.WHITE_CHESS) {
 
-						System.out.println("在(" + x + "," + y + ")绘制白棋");
+						//System.out.println("在(" + x + "," + y + ")绘制白棋");
 						g.setColor(Color.white);
 						g.fillOval(spacing * x + spacing - ovalSize / 2, spacing * y + spacing - ovalSize / 2, ovalSize,
 								ovalSize);
@@ -135,7 +135,7 @@ public class ChessPanel extends JPanel implements PanelObserver {
 		this.nx = nx;
 		this.ny = ny;
 		this.isEnd=status;
-		System.out.println("更新...");
+		//System.out.println("更新信息...");
 		repaint();
 	}
 }

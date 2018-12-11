@@ -1,12 +1,6 @@
 package demo2;
 
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-
 import javax.swing.JOptionPane;
-
-import org.omg.CosNaming.NamingContextExtPackage.AddressHelper;
-
 /**
  * 游戏调度及运行入口
  * 
@@ -31,11 +25,18 @@ public class Game implements MouseObserver {
 
 		// TEST
 		player = new Player[2];
-		// if human first
-		gameMode = GameMode.PVP;
-		player[0] = new HumanPlayer();
-		player[1] = new HumanPlayer();
+////		 PVP MODE
+//			gameMode = GameMode.PVP;
+//			player[0] = new HumanPlayer();
+//			player[1] = new HumanPlayer();
 		
+		//PVC MODE
+		gameMode=GameMode.PVC;
+		player[0]=new HumanPlayer();
+		
+		AiPlayer aiPlayer=new AiPlayer();
+		chessBoard.registerObserver(aiPlayer);
+		player[1]=aiPlayer;
 
 		// if AI first
 		// swap(player[0],player[1]);
@@ -60,7 +61,9 @@ public class Game implements MouseObserver {
 			if (chessBoard.isLegal(p)) {
 				chessBoard.setChess(p, player[i].getChessman());
 				isEnd = chessBoard.isEnd();
-			round++;
+				round++;
+			}else {
+				i--;
 			}
 			if (isEnd != Status.GAMING) {
 				winner = nowPlayerNum;
@@ -78,7 +81,7 @@ public class Game implements MouseObserver {
 		if (chessBoard.isLegal(p)) {
 			chessBoard.setChess(p, player[nowPlayerNum].getChessman());
 			isEnd = chessBoard.isEnd();
-		round++;
+			round++;
 		}
 		if (isEnd != Status.GAMING) {
 			winner = nowPlayerNum;
@@ -114,7 +117,7 @@ public class Game implements MouseObserver {
 		this.humanPlayerNum = humanPlayerNum;
 	}
 
-	public void setChessPanel(PanelObserver o) {
+	public void setChessPanel(BoardObserver o) {
 		chessBoard.registerObserver(o);
 	}
 

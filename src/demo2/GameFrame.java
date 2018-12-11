@@ -47,7 +47,7 @@ public class GameFrame extends JFrame {
 		gameMouseListener.registerObserver(o);
 	}
 
-	public PanelObserver getChessPanel() {
+	public BoardObserver getChessPanel() {
 		return chessPanel;
 
 	}
