@@ -118,6 +118,7 @@ public class ChessPanel extends JPanel implements BoardObserver {
 					}
 					// 当前落点的红色提示
 					if (y == ny && x == nx) {
+						System.out.println("绘制红点...");
 						g.setColor(Color.red);
 						g.fillOval(spacing * x + spacing - redMarkSize / 2, spacing * y + spacing - redMarkSize / 2,
 								redMarkSize, redMarkSize);

@@ -48,16 +48,22 @@ public class AiPlayer extends Player implements BoardObserver {
 		Chessman[][] boardCal = boardCopy.clone();
 		ArrayList<Point> cango = getChessList(3, boardCal, false);
 		for (Point e : cango) {
-				System.out.println("boardCal[e.y][e.x]"+boardCal[e.y][e.x]+"getChessman()"+getChessman());
 			if (boardCal[e.y][e.x] == Chessman.BLANK_SPACE) {
-				//模拟走一步
-				//TODO 模拟敌人（人类）走步，比较取下子地点
-				erreo
-				boardCal[e.y][e.x]=getChessman();
-				int score = caculatePerPoint(new Point(e.y, e.x), boardCal);
-				//走完删除
-				boardCal[e.y][e.x]=Chessman.BLANK_SPACE;
-				System.out.println("(" + e.x + "," + e.y + ") score = " + score);
+
+				// 模拟走一步
+				// TODO 模拟敌人（人类）走步，比较取下子地点
+				boardCal[e.y][e.x] = getEnemyChessman();
+				int aiScore = caculatePerPoint(new Point(e.x, e.y), boardCal);
+
+				boardCal[e.y][e.x] = getChessman();
+				int humScore = caculatePerPoint(new Point(e.x, e.y), boardCal);
+
+				// 走完删除
+				boardCal[e.y][e.x] = Chessman.BLANK_SPACE;
+
+				int score = Math.max(aiScore , humScore);
+				score=aiScore+humScore;
+				//System.out.println("boardCal[" + e.y + "][" + e.x + "]   score : " + score);
 				if (score > maxScore) {
 					p = e;
 					maxScore = score;
@@ -100,8 +106,8 @@ public class AiPlayer extends Player implements BoardObserver {
 				for (int y = i - space; ((y < i + space) && (mark == false)); y++) {
 					for (int x = j - space; ((x < j + space) && (mark == false)); x++) {
 						if (y >= 0 && y < BOARD_SIZE && x >= 0 && x < BOARD_SIZE) {
-							if (board[y][x] != Chessman.BLANK_SPACE || hasChess==true) {
-								//System.out.println("(" + j + "," + i + ")");
+							if (board[y][x] != Chessman.BLANK_SPACE || hasChess == true) {
+								// System.out.println("(" + j + "," + i + ")");
 								list.add(new Point(j, i));
 								mark = true;
 								break;
@@ -140,6 +146,8 @@ public class AiPlayer extends Player implements BoardObserver {
 		}
 
 		// 记录4个方向上的棋子情况(横，纵，左斜，右斜)，分别交给评估函数计算
+		//System.out.println("(" + p.x + " " + p.y + ")");
+		situationMap[4] = map[ny][nx];
 		for (int i = 0; i < 4; i++) {
 			// 两边
 			for (int j = 0; j < 2; j++) {
@@ -152,12 +160,19 @@ public class AiPlayer extends Player implements BoardObserver {
 					tempY += dir[i][j][1];
 					temp += dir2[j];
 					if (tempX >= 0 && tempX < BOARD_SIZE && tempY >= 0 && tempY < BOARD_SIZE) {
+
+						// System.out.println("temp:" + temp+" tempY:"+tempY+" tempX:"+tempX +
+						// "map["+tempY+"]["+tempX+"]:"+map[tempY][tempX]);
 						situationMap[temp] = map[tempY][tempX];
 					} else {
 						situationMap[temp] = null;
 					}
 				}
 			}
+			for (Chessman e : situationMap) {
+				//System.out.print("    " + e);
+			}
+			//System.out.println();
 			score += situation(situationMap);
 		}
 		return score;
@@ -194,6 +209,7 @@ public class AiPlayer extends Player implements BoardObserver {
 					// 如果是空地
 					if (tempChess == Chessman.BLANK_SPACE && !flag) {
 						cntBlank++;
+						flag=true;
 					}
 				}
 			}

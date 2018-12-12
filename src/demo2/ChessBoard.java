@@ -18,10 +18,10 @@ public class ChessBoard implements BoardObserverable {
 	
 	
 	private ArrayList<BoardObserver> observersList;
-
-	private BoardObserver panelObserver;
 	private int winx[] = new int[2];
 	private int winy[] = new int[2];
+	private int nx=-1;
+	private int ny=-1;
 	// 棋盘
 	private Chessman board[][];
 	// 下棋栈，存放下棋的坐标记录，用于悔棋退回
@@ -37,7 +37,8 @@ public class ChessBoard implements BoardObserverable {
 	public void setChess(Point p, Chessman c) {
 		System.out.println("在(" + p.x + "," + p.y + ")处，放了一个棋子");
 		board[p.y][p.x] = c;
-
+		nx=p.x;
+		ny=p.y;
 		putStack.push(p);
 		// 发送棋盘信息
 		sendMessages();
@@ -165,6 +166,10 @@ public class ChessBoard implements BoardObserverable {
 
 	public void cleanBoard() {
 		System.out.println("清空棋盘...");
+		nx=-1;
+		ny=-1;
+		winx=new int[2];
+		winy=new int[2];
 		for (int i = 0; i < board.length; i++) {
 			for (int j = 0; j < board[i].length; j++) {
 				board[i][j] = Chessman.BLANK_SPACE;
@@ -187,7 +192,7 @@ public class ChessBoard implements BoardObserverable {
 	
 	private void sendMessages() {
 		for(BoardObserver list:observersList) {
-			list.update(board.clone(), winx, winy, -1, -1, isEnd());
+			list.update(board.clone(), winx, winy, nx, ny, isEnd());
 		}
 	}
 }

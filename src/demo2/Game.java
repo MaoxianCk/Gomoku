@@ -57,7 +57,7 @@ public class Game implements MouseObserver {
 			nowPlayerNum = round % 2;
 
 			p = player[i].putChess(p);
-			System.out.println("Player[" + i + "]" + player[i].getChessman());
+			System.out.println("Player[" + i + "] " + player[i].getChessman());
 			if (chessBoard.isLegal(p)) {
 				chessBoard.setChess(p, player[i].getChessman());
 				isEnd = chessBoard.isEnd();
