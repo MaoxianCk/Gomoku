@@ -25,7 +25,7 @@ public class AiPlayer extends Player implements BoardObserver {
 	public Point putChess(Point p) {
 		System.out.println("---------AI---------");
 		p = new Point(0, 0);
-		p = caculate();
+		p = caculateEasy();
 		return p;
 	}
 
@@ -39,14 +39,14 @@ public class AiPlayer extends Player implements BoardObserver {
 	 */
 
 	/**
-	 * 计算，返回最终计算结果
+	 * 简单版ai 一次评估单点成绩出结果
 	 */
-	private Point caculate() {
+	private Point caculateEasy() {
 		Point p = null;
 		int maxScore = 0;
 		// 用于计算的board
 		Chessman[][] boardCal = boardCopy.clone();
-		ArrayList<Point> cango = getChessList(3, boardCal, false);
+		ArrayList<Point> cango = getChessList(3, boardCal, false, null);
 		for (Point e : cango) {
 			if (boardCal[e.y][e.x] == Chessman.BLANK_SPACE) {
 
@@ -61,9 +61,9 @@ public class AiPlayer extends Player implements BoardObserver {
 				// 走完删除
 				boardCal[e.y][e.x] = Chessman.BLANK_SPACE;
 
-				int score = Math.max(aiScore , humScore);
-				score=aiScore+humScore;
-				//System.out.println("boardCal[" + e.y + "][" + e.x + "]   score : " + score);
+				int score = Math.max(aiScore, humScore);
+				score = aiScore + humScore;
+				// System.out.println("boardCal[" + e.y + "][" + e.x + "] score : " + score);
 				if (score > maxScore) {
 					p = e;
 					maxScore = score;
@@ -74,13 +74,42 @@ public class AiPlayer extends Player implements BoardObserver {
 	}
 
 	/**
-	 * 评估函数，评估当前棋盘上的总分
+	 * 计算，返回最终计算结果
+	 */
+	private Point caculate() {
+		Point point = null;
+		Chessman[][] boardCal = boardCopy.clone();
+		//生成可记录分数的可走点的数组，在迭代中不断更新该值，最后从数组中选取最高分对应点返回(意味着max_min中计算可随意中断，都能得到以找到的最优解)。
+		ArrayList<Point> cangolist = getChessList(3, boardCal, false, getChessman());
+		Point_Score[] point_Scores = new Point_Score[cangolist.size()];
+		for (int i = 0; i < point_Scores.length; i++) {
+			point_Scores[i] = new Point_Score(cangolist.get(i));
+		}
+		
+
+		//找到可走点中最优点
+		int max=0;
+		for(int i=0;i<point_Scores.length;i++) {
+			if(max<point_Scores[i].score) {
+				max=point_Scores[i].score;
+				point=point_Scores[i].p;
+			}
+		}
+		return point;
+	}
+
+	private Point max_min(int deep,int alpha,int beata,Chessman role,Chessman[][] boardCal) {
+		if(deep)
+	}
+
+	/**
+	 * 评估函数，评估当前局势总分 不分敌我
 	 */
 	private int evaluate(Chessman[][] board) {
 		int result = 0;
 
 		// 得到所有已有棋子的坐标
-		ArrayList<Point> points = getChessList(0, board, true);
+		ArrayList<Point> points = getChessList(0, board, true, null);
 		for (Point e : points) {
 			result += caculatePerPoint(e, board);
 		}
@@ -89,9 +118,10 @@ public class AiPlayer extends Player implements BoardObserver {
 
 	/**
 	 * 根据space的间距判断原点+space*2范围内是否有其他棋子 space 间距，board
-	 * 棋盘，hasChess搜索的点集合是否有棋子，true表示返回list中的点都不是空地，false表示list中的点都是空地
+	 * 棋盘，hasChess搜索的点集合是否有棋子，true表示返回list中的点都不是空地，false表示list中[y][x]的点都是空地
+	 * ,role要搜索[i][j]的对象棋子，null不区分
 	 */
-	private ArrayList<Point> getChessList(int space, Chessman[][] board, boolean hasChess) {
+	private ArrayList<Point> getChessList(int space, Chessman[][] board, boolean hasChess, Chessman role) {
 		ArrayList<Point> list = new ArrayList<Point>();
 		for (int i = 0; i < BOARD_SIZE; i++) {
 			for (int j = 0; j < BOARD_SIZE; j++) {
@@ -101,6 +131,12 @@ public class AiPlayer extends Player implements BoardObserver {
 				if (hasChess == true && board[i][j] == Chessman.BLANK_SPACE) {
 					// 如果hasChess为true且该点是空地则跳过
 					continue;
+				}
+				// 如果role不是null 判断[i][j]是不是要搜索的对象role 不是跳过[i][j]
+				if (role != null) {
+					if (board[i][j] != role) {
+						continue;
+					}
 				}
 				boolean mark = false;
 				for (int y = i - space; ((y < i + space) && (mark == false)); y++) {
@@ -146,7 +182,7 @@ public class AiPlayer extends Player implements BoardObserver {
 		}
 
 		// 记录4个方向上的棋子情况(横，纵，左斜，右斜)，分别交给评估函数计算
-		//System.out.println("(" + p.x + " " + p.y + ")");
+		// System.out.println("(" + p.x + " " + p.y + ")");
 		situationMap[4] = map[ny][nx];
 		for (int i = 0; i < 4; i++) {
 			// 两边
@@ -170,9 +206,9 @@ public class AiPlayer extends Player implements BoardObserver {
 				}
 			}
 			for (Chessman e : situationMap) {
-				//System.out.print("    " + e);
+				// System.out.print(" " + e);
 			}
-			//System.out.println();
+			// System.out.println();
 			score += situation(situationMap);
 		}
 		return score;
@@ -209,7 +245,7 @@ public class AiPlayer extends Player implements BoardObserver {
 					// 如果是空地
 					if (tempChess == Chessman.BLANK_SPACE && !flag) {
 						cntBlank++;
-						flag=true;
+						flag = true;
 					}
 				}
 			}
