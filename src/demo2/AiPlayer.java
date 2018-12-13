@@ -39,7 +39,7 @@ public class AiPlayer extends Player implements BoardObserver {
 	 */
 
 	/**
-	 * 简单版ai 一次评估单点成绩出结果
+	 * 简单版AI 一次评估单点成绩出结果
 	 */
 	private Point caculateEasy() {
 		Point p = null;
