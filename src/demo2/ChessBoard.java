@@ -65,10 +65,10 @@ public class ChessBoard implements BoardObserverable {
 		 * 检测是否分出胜负 以当前落子点p=栈顶 为中心向4个方向(横，竖，左斜，右斜)比对
 		 * 如果是空栈，返回Gaming，游戏刚开始
 		 */
-		if (putStack.empty()) {
+		if (nx==-1&&ny==-1) {
 			return Status.GAMING;
 		}
-		Point p = putStack.peek();
+		Point p = new Point(nx,ny);
 
 		Status win = Status.GAMING;// 判断前设置初始状态
 		int maxCnt = 0;// 记录最大连子数

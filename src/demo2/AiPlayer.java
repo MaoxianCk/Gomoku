@@ -2,6 +2,8 @@ package demo2;
 
 import java.util.ArrayList;
 
+import demo.Game;
+
 /**
  * AI 玩家
  * 
@@ -79,27 +81,51 @@ public class AiPlayer extends Player implements BoardObserver {
 	private Point caculate() {
 		Point point = null;
 		Chessman[][] boardCal = boardCopy.clone();
-		//生成可记录分数的可走点的数组，在迭代中不断更新该值，最后从数组中选取最高分对应点返回(意味着max_min中计算可随意中断，都能得到以找到的最优解)。
+		// 生成可记录分数的可走点的数组，在迭代中不断更新该值，最后从数组中选取最高分对应点返回(意味着max_min中计算可随意中断，都能得到以找到的最优解)。
 		ArrayList<Point> cangolist = getChessList(3, boardCal, false, getChessman());
 		Point_Score[] point_Scores = new Point_Score[cangolist.size()];
 		for (int i = 0; i < point_Scores.length; i++) {
 			point_Scores[i] = new Point_Score(cangolist.get(i));
 		}
-		
 
-		//找到可走点中最优点
-		int max=0;
-		for(int i=0;i<point_Scores.length;i++) {
-			if(max<point_Scores[i].score) {
-				max=point_Scores[i].score;
-				point=point_Scores[i].p;
+		// 极大极小搜索
+		max_min(7, 0, 0, getChessman(), boardCal, point_Scores);
+
+		// 找到可走点中最优点
+		int max = 0;
+		for (int i = 0; i < point_Scores.length; i++) {
+			if (max < point_Scores[i].score) {
+				max = point_Scores[i].score;
+				point = point_Scores[i].p;
 			}
 		}
 		return point;
 	}
 
-	private Point max_min(int deep,int alpha,int beata,Chessman role,Chessman[][] boardCal) {
-		if(deep)
+	/**
+	 * 极大极小搜索，结果（分数）更新在备选点集中
+	 */
+	private void max_min(int deep, int alpha, int beata, Chessman role, Chessman[][] boardCal, Point_Score[] points) {
+
+		// 到达指定深度或者分出胜负
+		if (deep <= 0) {
+			return;
+		}
+		ArrayList<Point> cango=getChessList(3, boardCal, false, getSwapChessman(role));
+		for(Point p:cango) {
+			boardCal[p.y][p.x]=role;
+			max_min(deep-1, -beata, -alpha, getSwapChessman(role), boardCal, points);
+			boardCal[p.y][p.x]=Chessman.BLANK_SPACE;
+		}
+
+	}
+
+	private Chessman getSwapChessman(Chessman role) {
+		
+		if(role!=null) {
+			return (role==Chessman.BLACK_CHESS?Chessman.WHITE_CHESS:Chessman.BLACK_CHESS);
+		}
+		return null;
 	}
 
 	/**
@@ -292,5 +318,14 @@ public class AiPlayer extends Player implements BoardObserver {
 		}
 
 		return score;
+	}
+
+	private boolean getWinScore(Point_Score[] points) {
+		for (Point_Score p : points) {
+			if (p.score > 100000 || p.score < -100000) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
