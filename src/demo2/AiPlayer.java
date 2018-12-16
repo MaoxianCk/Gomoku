@@ -1,5 +1,6 @@
 package demo2;
 
+import java.time.chrono.MinguoChronology;
 import java.util.ArrayList;
 
 import demo.Game;
@@ -27,7 +28,7 @@ public class AiPlayer extends Player implements BoardObserver {
 	public Point putChess(Point p) {
 		System.out.println("---------AI---------");
 		p = new Point(0, 0);
-		p = caculateEasy();
+		p = caculate();
 		return p;
 	}
 
@@ -48,7 +49,7 @@ public class AiPlayer extends Player implements BoardObserver {
 		int maxScore = 0;
 		// 用于计算的board
 		Chessman[][] boardCal = boardCopy.clone();
-		ArrayList<Point> cango = getChessList(3, boardCal, false, null);
+		ArrayList<Point> cango = getCangoList(boardCal, 3);
 		for (Point e : cango) {
 			if (boardCal[e.y][e.x] == Chessman.BLANK_SPACE) {
 
@@ -80,50 +81,109 @@ public class AiPlayer extends Player implements BoardObserver {
 	 */
 	private Point caculate() {
 		Point point = null;
-		Chessman[][] boardCal = boardCopy.clone();
+		Chessman[][] boardCal = new Chessman[boardCopy.length][boardCopy[0].length];
+		for (int i = 0; i < boardCopy.length; i++) {
+			for (int j = 0; j < boardCopy[i].length; j++) {
+				boardCal[i][j] = boardCopy[i][j];
+			}
+		}
+
 		// 生成可记录分数的可走点的数组，在迭代中不断更新该值，最后从数组中选取最高分对应点返回(意味着max_min中计算可随意中断，都能得到以找到的最优解)。
-		ArrayList<Point> cangolist = getChessList(3, boardCal, false, getChessman());
+		ArrayList<Point> cangolist = getCangoList(boardCal, 2);
+
 		Point_Score[] point_Scores = new Point_Score[cangolist.size()];
 		for (int i = 0; i < point_Scores.length; i++) {
 			point_Scores[i] = new Point_Score(cangolist.get(i));
 		}
 
 		// 极大极小搜索
-		max_min(7, 0, 0, getChessman(), boardCal, point_Scores);
+		// max_min(3, 0, 0, getChessman(), boardCal, point_Scores);
+		int best = Integer.MIN_VALUE;
+		for (Point_Score p : point_Scores) {
+			boardCal[p.p.y][p.p.x] = getChessman();
+			int temp = min(2, Integer.MIN_VALUE, Integer.MAX_VALUE, boardCal);
 
-		// 找到可走点中最优点
-		int max = 0;
-		for (int i = 0; i < point_Scores.length; i++) {
-			if (max < point_Scores[i].score) {
-				max = point_Scores[i].score;
-				point = point_Scores[i].p;
+			boardCal[p.p.y][p.p.x] = Chessman.BLANK_SPACE;
+			if (best < temp) {
+				System.out.println("--- best:" + temp + " point: " + p.p.x + " " + p.p.y);
+				best = temp;
+				point = p.p;
 			}
 		}
+		
+		System.out.println("best Point: ("+ point.x+","+point.y+")");
 		return point;
 	}
 
 	/**
 	 * 极大极小搜索，结果（分数）更新在备选点集中
 	 */
-	private void max_min(int deep, int alpha, int beata, Chessman role, Chessman[][] boardCal, Point_Score[] points) {
-
-		// 到达指定深度或者分出胜负
+	private int max(int deep, int alpha, int beata, Chessman[][] boardCal) {
 		if (deep <= 0) {
-			return;
+			// System.out.println("max deepth:"+deep+" best:"+evaluate(boardCal));
+			return evaluate(boardCal);
 		}
-		ArrayList<Point> cango=getChessList(3, boardCal, false, getSwapChessman(role));
-		for(Point p:cango) {
-			boardCal[p.y][p.x]=role;
-			max_min(deep-1, -beata, -alpha, getSwapChessman(role), boardCal, points);
-			boardCal[p.y][p.x]=Chessman.BLANK_SPACE;
-		}
+		int best = Integer.MIN_VALUE;
+		ArrayList<Point> cango = getCangoList(boardCal, 2);
 
+		for (Point p : cango) {
+			boardCal[p.y][p.x] = getChessman();
+			int temp = min(deep - 1, alpha, beata, boardCal);
+			boardCal[p.y][p.x] = Chessman.BLANK_SPACE;
+			if (best < temp) {
+				best = temp;
+			}
+			if(temp>alpha) {
+				alpha=temp;
+			}
+			if(alpha>beata) {
+				return alpha;
+			}
+		}
+		// System.out.println("deepth:"+deep+" best:"+best);
+		return alpha;
+	}
+
+	private int min(int deep, int alpha, int beata, Chessman[][] boardCal) {
+		if (deep <= 0) {
+			// System.out.println("min deepth:"+deep+" best:"+evaluate(boardCal));
+			return evaluate(boardCal);
+		}
+		int best = Integer.MAX_VALUE;
+		ArrayList<Point> cango = getCangoList(boardCal, 2);
+
+//		int cnt=0;
+//		for(Point p:cango) {
+//			cnt++;
+//			System.out.print(p.x+" "+p.y+"\t");
+//			if(cnt%5==0) {
+//				System.out.println();
+//			}
+//		}
+//		System.out.println();
+
+		for (Point p : cango) {
+			boardCal[p.y][p.x] = getEnemyChessman();
+			int temp = max(deep - 1, alpha, beata, boardCal);
+			boardCal[p.y][p.x] = Chessman.BLANK_SPACE;
+			if (best > temp) {
+				best = temp;
+			}
+			if(temp<beata) {
+				beata=temp;
+			}
+			if(alpha>beata) {
+				return beata;
+			}
+		}
+		// System.out.println("deepth:"+deep+" best:"+best);
+		return beata;
 	}
 
 	private Chessman getSwapChessman(Chessman role) {
-		
-		if(role!=null) {
-			return (role==Chessman.BLACK_CHESS?Chessman.WHITE_CHESS:Chessman.BLACK_CHESS);
+
+		if (role != null) {
+			return (role == Chessman.BLACK_CHESS ? Chessman.WHITE_CHESS : Chessman.BLACK_CHESS);
 		}
 		return null;
 	}
@@ -135,7 +195,8 @@ public class AiPlayer extends Player implements BoardObserver {
 		int result = 0;
 
 		// 得到所有已有棋子的坐标
-		ArrayList<Point> points = getChessList(0, board, true, null);
+		ArrayList<Point> points = getChessList(board);
+
 		for (Point e : points) {
 			result += caculatePerPoint(e, board);
 		}
@@ -143,40 +204,45 @@ public class AiPlayer extends Player implements BoardObserver {
 	}
 
 	/**
-	 * 根据space的间距判断原点+space*2范围内是否有其他棋子 space 间距，board
-	 * 棋盘，hasChess搜索的点集合是否有棋子，true表示返回list中的点都不是空地，false表示list中[y][x]的点都是空地
-	 * ,role要搜索[i][j]的对象棋子，null不区分
+	 * 得到所有棋子的列表
 	 */
-	private ArrayList<Point> getChessList(int space, Chessman[][] board, boolean hasChess, Chessman role) {
+	private ArrayList<Point> getChessList(Chessman[][] board) {
 		ArrayList<Point> list = new ArrayList<Point>();
 		for (int i = 0; i < BOARD_SIZE; i++) {
 			for (int j = 0; j < BOARD_SIZE; j++) {
-				/**
-				 * 判断该点周围5*5范围内是否有棋子
-				 */
-				if (hasChess == true && board[i][j] == Chessman.BLANK_SPACE) {
-					// 如果hasChess为true且该点是空地则跳过
-					continue;
+				if (board[i][j] == Chessman.BLACK_CHESS || board[i][j] == Chessman.WHITE_CHESS) {
+					list.add(new Point(j, i));
 				}
-				// 如果role不是null 判断[i][j]是不是要搜索的对象role 不是跳过[i][j]
-				if (role != null) {
-					if (board[i][j] != role) {
-						continue;
-					}
-				}
-				boolean mark = false;
-				for (int y = i - space; ((y < i + space) && (mark == false)); y++) {
-					for (int x = j - space; ((x < j + space) && (mark == false)); x++) {
-						if (y >= 0 && y < BOARD_SIZE && x >= 0 && x < BOARD_SIZE) {
-							if (board[y][x] != Chessman.BLANK_SPACE || hasChess == true) {
-								// System.out.println("(" + j + "," + i + ")");
-								list.add(new Point(j, i));
-								mark = true;
-								break;
+			}
+		}
+		return list;
+	}
+
+	/**
+	 * 得到所有可以走的位置列表
+	 */
+	private ArrayList<Point> getCangoList(Chessman[][] board, int space) {
+		ArrayList<Point> list = new ArrayList<Point>();
+		for (int i = 0; i < BOARD_SIZE; i++) {
+			for (int j = 0; j < BOARD_SIZE; j++) {
+				
+				
+				if (board[i][j] == Chessman.BLANK_SPACE) {
+					for (int dy = -space; dy <= space; dy++) {
+						for (int dx = -space; dx <= space; dx++) {
+							if ((dx != 0 || dy != 0) && i + dy >= 0 && i + dy < BOARD_SIZE && j + dx >= 0
+									&& j + dx < BOARD_SIZE) {
+								if (board[i + dy][j + dx] == Chessman.BLACK_CHESS
+										|| board[i + dy][j + dx] == Chessman.WHITE_CHESS) {
+									list.add(new Point(j, i));
+								}
 							}
 						}
 					}
 				}
+				
+				
+				
 			}
 		}
 		return list;

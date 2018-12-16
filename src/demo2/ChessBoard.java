@@ -149,7 +149,6 @@ public class ChessBoard implements BoardObserverable {
 	}
 
 	public boolean isLegal(Point p) {
-
 		if (board[p.y][p.x] == Chessman.BLANK_SPACE && p.x >= 0 && p.y >= 0 && p.x < BOARD_SIZE && p.y < BOARD_SIZE) {
 			// 越界检查
 			System.out.println("当前位置 ( " + p.x + " , " + p.y + " ) 合法");
